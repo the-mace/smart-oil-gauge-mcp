@@ -1,0 +1,36 @@
+{
+  "result": "ok",
+  "Status": 200,
+  "tanks": [
+    {
+      "tank_id": "1001",
+      "tank_name": "Basement",
+      "low_level": "0.25",
+      "sensor_gallons": "137.5",
+      "model_gallons": null,
+      "nominal": "275",
+      "fillable": "251",
+      "sensor_usg": "2.5",
+      "battery": "Good,Fair",
+      "sensor_status": "Active",
+      "last_read": "1790000000,1789996400",
+      "data_servers": "data.example.com",
+      "sensors": [{"registration_id": "2001", "sensor_id": "3001"}]
+    },
+    {
+      "tank_id": "1002",
+      "tank_name": "Garage",
+      "low_level": "0.25",
+      "sensor_gallons": "50",
+      "nominal": "275",
+      "fillable": "251",
+      "sensor_usg": "0.1",
+      "battery": "Excellent",
+      "sensor_status": "Active",
+      "last_read": "1789000000",
+      "data_servers": "",
+      "sensors": [{"registration_id": "2002"}]
+    },
+    {"tank_name": "no id"}
+  ]
+}

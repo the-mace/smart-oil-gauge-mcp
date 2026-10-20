@@ -1,0 +1,18 @@
+# Python / local env
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+
+# Local AI / editor tooling
+.claude/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+*.log

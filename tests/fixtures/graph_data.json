@@ -1,0 +1,40 @@
+{
+  "result": "ok",
+  "datasets": {
+    "2001": {
+      "day": {
+        "points": [
+          {"ts": 1789996400, "gallons": 138.0, "fgal": 138.0, "temperature": 652},
+          {"ts": 1790000000, "gallons": 137.5, "fgal": 137.5, "temperature": 650}
+        ],
+        "gpd": "2.4",
+        "gallons": "1.2"
+      },
+      "week": {
+        "points": [
+          {"ts": 1789500000, "gallons": 150.0, "fgal": "150.0", "temperature": 640},
+          {"ts": 1790000000, "gallons": 137.5, "fgal": "137.6", "temperature": 650}
+        ],
+        "gpd": "2.5",
+        "gallons": "17.5"
+      },
+      "month": {
+        "points": [
+          {"ts": 1787500000, "gallons": 60.0, "fgal": "60.0", "temperature": 600},
+          {"ts": 1787600000, "gallons": 235.0, "fgal": "245.0", "temperature": 600},
+          {"ts": 1790000000, "gallons": 137.5, "fgal": "137.6", "temperature": 650}
+        ],
+        "gpd": "2.6",
+        "gallons": "78.0"
+      },
+      "year": {
+        "points": [
+          {"ts": 1760000000, "gallons": 200.0, "fgal": "200.0", "temperature": 580},
+          {"ts": 1787500000, "gallons": 60.0, "fgal": "60.0", "temperature": 600}
+        ],
+        "gpd": "1.9",
+        "gallons": "700"
+      }
+    }
+  }
+}
