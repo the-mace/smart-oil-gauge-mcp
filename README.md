@@ -36,7 +36,8 @@ python3 -m venv .venv
 ## Credentials
 
 Use the email and password you sign in to app.smartoilgauge.com with. Set
-them in the environment, or put them in `~/.env`:
+them in the environment, or put them in a `.env` file in this repo's folder
+(git ignores it) or in `~/.env`. They are looked up in that order:
 
 ```bash
 SMARTOILGAUGE_USERNAME=you@example.com

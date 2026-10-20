@@ -34,7 +34,7 @@ the second opinion.
 - `src/smart_oil_gauge_mcp.py`: MCP server (mcp v2, stdio) with two
   read-only tools, `get_tank_status` and `get_usage_history`. Credentials
   come from `SMARTOILGAUGE_USERNAME` / `SMARTOILGAUGE_PASSWORD` in the
-  environment, falling back to `~/.env`.
+  environment, then the repo-root `.env` (gitignored), then `~/.env`.
 - `tests/fixtures/`: synthetic responses in the site's shape. Never real data.
 
 ## When the site changes

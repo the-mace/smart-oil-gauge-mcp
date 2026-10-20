@@ -9,6 +9,7 @@ Run with --check to print every tool's output once and exit.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 import time
@@ -21,7 +22,10 @@ from client import SmartOilClient
 
 USERNAME_VAR = "SMARTOILGAUGE_USERNAME"
 PASSWORD_VAR = "SMARTOILGAUGE_PASSWORD"
-DOTENV = Path.home() / ".env"
+DOTENV_FILES = (Path(__file__).resolve().parent.parent / ".env", Path.home() / ".env")
+
+# httpx logs every request URL at INFO, which floods --check output.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 mcp = MCPServer("smart-oil-gauge")
 _client: SmartOilClient | None = None
@@ -42,13 +46,15 @@ def _read_dotenv(path: Path) -> dict[str, str]:
     return values
 
 
-def load_credentials(env: dict[str, str] = os.environ, dotenv: Path = DOTENV) -> tuple[str, str]:
-    """Credentials from the environment, falling back to ~/.env."""
-    file_values = _read_dotenv(dotenv)
-    username = env.get(USERNAME_VAR) or file_values.get(USERNAME_VAR)
-    password = env.get(PASSWORD_VAR) or file_values.get(PASSWORD_VAR)
+def load_credentials(env: dict[str, str] = os.environ,
+                     dotenv_files: tuple[Path, ...] = DOTENV_FILES) -> tuple[str, str]:
+    """Credentials from the environment, then the repo's .env, then ~/.env."""
+    sources = [env, *(_read_dotenv(path) for path in dotenv_files)]
+    username = next((s[USERNAME_VAR] for s in sources if s.get(USERNAME_VAR)), None)
+    password = next((s[PASSWORD_VAR] for s in sources if s.get(PASSWORD_VAR)), None)
     if not username or not password:
-        raise RuntimeError(f"Set {USERNAME_VAR} and {PASSWORD_VAR} in the environment or {dotenv}")
+        searched = " or ".join(str(p) for p in dotenv_files)
+        raise RuntimeError(f"Set {USERNAME_VAR} and {PASSWORD_VAR} in the environment or {searched}")
     return username, password
 
 
