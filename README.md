@@ -50,6 +50,44 @@ Check that it works (prints both tools' output for your tanks):
 .venv/bin/python src/smart_oil_gauge_mcp.py --check
 ```
 
+## Weekly summary email
+
+Set `WEEKLY_SUMMARY_EMAIL` in the same `.env` (or the environment) to get the
+polled data by email:
+
+```bash
+WEEKLY_SUMMARY_EMAIL=you@example.com
+```
+
+```bash
+.venv/bin/python src/smart_oil_gauge_mcp.py --summary       # print it
+.venv/bin/python src/smart_oil_gauge_mcp.py --send-summary  # email it
+scripts/install-launchd.sh            # macOS: send every Sunday 08:00
+scripts/install-launchd.sh 1 7 30     # or weekday (0=Sunday), hour, minute
+scripts/install-launchd.sh --uninstall
+```
+
+Mail goes through the local `sendmail` (Postfix or another MTA must already
+relay outbound mail). The subject is a one-line headline per tank. The body
+is every field of both tools as `key: value` lines, plus the last 7 days of
+daily levels, so it is easy to read and easy for a script or bot to parse:
+
+```
+format: smart-oil-gauge-summary/v1
+generated: 2026-09-21T15:13:20+00:00
+tanks: 1
+
+[tank Basement]
+gallons: 137.5
+percent_full: 50
+days_to_low: 27.5
+...
+daily_gallons_last_7_days: 2026-09-15=150 2026-09-21=137.5
+```
+
+Missing values are `null`. The job logs to `logs/` (gitignored), and the
+address is read at send time, so it stays out of the plist and the repo.
+
 ## Add to an MCP client
 
 Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`).

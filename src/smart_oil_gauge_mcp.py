@@ -4,7 +4,8 @@ Each tool call fetches live from app.smartoilgauge.com using your account
 login. Nothing is stored on disk; the session cookie lives in memory for
 the life of the server process.
 
-Run with --check to print every tool's output once and exit.
+Run with --check to print every tool's output once and exit, --summary to
+print the summary email, or --send-summary to email it to WEEKLY_SUMMARY_EMAIL.
 """
 from __future__ import annotations
 
@@ -18,10 +19,12 @@ from pathlib import Path
 from mcp.server.mcpserver import MCPServer
 
 import parse
+import report
 from client import SmartOilClient
 
 USERNAME_VAR = "SMARTOILGAUGE_USERNAME"
 PASSWORD_VAR = "SMARTOILGAUGE_PASSWORD"
+SUMMARY_EMAIL_VAR = "WEEKLY_SUMMARY_EMAIL"
 DOTENV_FILES = (Path(__file__).resolve().parent.parent / ".env", Path.home() / ".env")
 
 # httpx logs every request URL at INFO, which floods --check output.
@@ -46,12 +49,18 @@ def _read_dotenv(path: Path) -> dict[str, str]:
     return values
 
 
+def config_value(name: str, env: dict[str, str] = os.environ,
+                 dotenv_files: tuple[Path, ...] = DOTENV_FILES) -> str | None:
+    """A setting from the environment, then the repo's .env, then ~/.env."""
+    sources = [env, *(_read_dotenv(path) for path in dotenv_files)]
+    return next((s[name] for s in sources if s.get(name)), None)
+
+
 def load_credentials(env: dict[str, str] = os.environ,
                      dotenv_files: tuple[Path, ...] = DOTENV_FILES) -> tuple[str, str]:
     """Credentials from the environment, then the repo's .env, then ~/.env."""
-    sources = [env, *(_read_dotenv(path) for path in dotenv_files)]
-    username = next((s[USERNAME_VAR] for s in sources if s.get(USERNAME_VAR)), None)
-    password = next((s[PASSWORD_VAR] for s in sources if s.get(PASSWORD_VAR)), None)
+    username = config_value(USERNAME_VAR, env, dotenv_files)
+    password = config_value(PASSWORD_VAR, env, dotenv_files)
     if not username or not password:
         searched = " or ".join(str(p) for p in dotenv_files)
         raise RuntimeError(f"Set {USERNAME_VAR} and {PASSWORD_VAR} in the environment or {searched}")
@@ -111,13 +120,30 @@ def get_usage_history(tank_name: str | None = None, include_daily_levels: bool =
     return [parse.usage_history(t, client.get_graph_data(t), include_daily_levels) for t in tanks]
 
 
-def main(argv: list[str]) -> None:
+def build_summary() -> tuple[str, str]:
+    return report.build(get_tank_status(), get_usage_history(include_daily_levels=True), time.time())
+
+
+def main(argv: list[str]) -> int:
     if "--check" in argv:
         print(json.dumps({"get_tank_status": get_tank_status(),
                           "get_usage_history": get_usage_history()}, indent=2))
-        return
+        return 0
+    if "--summary" in argv:
+        subject, body = build_summary()
+        print(f"Subject: {subject}\n\n{body}", end="")
+        return 0
+    if "--send-summary" in argv:
+        to_addr = config_value(SUMMARY_EMAIL_VAR)
+        if not to_addr:
+            print(f"{SUMMARY_EMAIL_VAR} is not set; no summary sent.", file=sys.stderr)
+            return 2
+        report.send(to_addr, *build_summary())
+        print(f"Sent summary at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        return 0
     mcp.run()
+    return 0
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    sys.exit(main(sys.argv[1:]))

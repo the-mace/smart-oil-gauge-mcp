@@ -35,6 +35,12 @@ the second opinion.
   read-only tools, `get_tank_status` and `get_usage_history`. Credentials
   come from `SMARTOILGAUGE_USERNAME` / `SMARTOILGAUGE_PASSWORD` in the
   environment, then the repo-root `.env` (gitignored), then `~/.env`.
+- `src/report.py`: the summary email (`--summary` prints it, `--send-summary`
+  sends it to `WEEKLY_SUMMARY_EMAIL` via `/usr/sbin/sendmail`). The body
+  format is versioned (`format: smart-oil-gauge-summary/v1`) because a bot
+  parses it; bump the version if keys are renamed or removed.
+- `scripts/install-launchd.sh`: installs the weekly launchd job
+  (`local.smart-oil-gauge.weekly-summary`, logs in `logs/`).
 - `tests/fixtures/`: synthetic responses in the site's shape. Never real data.
 
 ## When the site changes
@@ -51,3 +57,5 @@ by hand before calling it fixed.
 - Read-only. Do not add calls that change account settings, alerts or orders.
 - Never print or log the password or the PHPSESSID cookie.
 - No on-disk session or data cache unless Rob asks for one.
+- The summary address lives only in the gitignored `.env`. Never put a real
+  address in code, tests, docs or the plist.
